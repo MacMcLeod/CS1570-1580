@@ -1,0 +1,31 @@
+Anna Case
+Section 1C
+Algorithm #1
+1. short bottomFloor = 0
+2. short topFloor =99
+3. dropFloor = topFloor-bottomFloor/2
+4. If dropFloor = 0, cout topFloor as the highest floor to drop from and end program.
+5. Drop egg from dropFloor, write to boolean break
+6. If break is true, highestFloor = dropFloor; If false, bottomFloor=dropFloor
+
+ Algorithm #2
+1. cin sick_day1, sick_day2 as integer between 1 and 20. If none taken, both = 0
+2. set shorts w1, w2, w3, w4 equal to 40
+3. if sick_day1 > 7,  sw1 = sick_day1/7 ; if sick_day2 > 21, sw2 = sick_day 1/7
+4. w(1,2,3,4) - 8 if sw1 or sw2 match the week number.
+5. cin hours(1,2,3,4) (hours worked that week)
+6. overtime(1,2,3,4) = hours(1,2,3,4 - w(1,2,3,4)
+7. If overtime(1,2,3,4) <30, OP(1,2,3,4) = 1.5 * overtime & status = "employed"; else OP = 2 * overtime + 30 & status = "employed"; 
+8. if overtime(1+2+3+4) > 80 then OP = 5 & status = "YOU'RE FIRED!" else OP = OP(1+2+3+4)
+9. cout OP 
+10. cout status
+
+ Algorithm #3
+1. set values of letters based off ASCII/or_whatever_it_is_the_professor_said_to
+2. create array w1 and array w2
+3. populate w1 until 0 is read. skip 0, then populate w2
+4. array diff w1 and w2 to return diffArray
+5. short output = match(0,diffArray,0)
+6.convert output to char using values
+7. cout char
+

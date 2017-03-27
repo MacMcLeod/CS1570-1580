@@ -1,0 +1,72 @@
+// Programmer: Anna Case                         Date: 3/10/2017
+// File: main.cpp                                Class: CS1570
+// Student Id: 16181344                          Section: C
+// Description: Additions and Modifications to HW4
+
+#include "calculations.h"
+
+int choice;
+void rerun(int &choice);
+int temp_choice;
+int rand_num;
+string rand_statement[9] = {"No. I'm not going to do that for you.","That's not something you need to know","Can't you do that on your own? Why bother me with your problems?","Perhaps you need to see your psychologist for this problem","What do you think I am? Your patsy?","I don't feel like doing that. Come back later and ask me","Go away!!","It's NOT my problem.","Ask Milhouse...surely he knows the answer to your stupid question."};
+
+int main()
+{
+  srand(time(NULL));
+  rerun(choice);
+  while (choice != 900)
+  {
+   switch (choice)
+   {
+     case 1: //Computes factorial of any input
+        factorial();
+        rerun(choice);
+        break;
+      case 2: //Computes Exponential of X
+        exponential();
+        rerun(choice);
+        break;
+      case 3: //Computes Sine of X
+        sine();
+        rerun(choice);
+        break;
+      case 4: //Computes Roots of X
+        roots();
+        rerun(choice);
+        break;
+      case 5: //Computes Hyperbolic Cosine of X
+        hcosine();
+        rerun(choice);
+        break;
+      case 6:
+        cout << "goodbye!" << endl;
+        choice = 900;
+      default:
+        cout << "Goodbye!" << endl;
+        choice = 900;
+    }
+  }
+  return 0;
+}
+
+void rerun(int &choice)
+{ //Menu Choice Function
+  do
+  {
+    cout << "OPTIONS: \n 1. Factorial of X \n 2. Exponential of X \n 3. Sine of X \n 4. Roots of X \n 5. Hyperbolic Cosine of X \n 6. Quit" << endl;
+    cin >> temp_choice;
+  } while ((temp_choice < 1) || (temp_choice > 5));
+  //Determines if it will run
+  if ((rand()%100) <= 24)
+  {	// 25% of the time
+    rand_num = rand() % 8;
+    cout << rand_statement[rand_num] << endl;
+    do
+    {
+      cout << "OPTIONS: \n 1. Factorial of X \n 2. Exponential of X \n 3. Sine of X \n 4. Roots of X \n 5. Hyperbolic Cosine of X \n 6. Quit" << endl;
+      cin >> temp_choice;
+    } while ((temp_choice < 1) || (temp_choice > 5));
+  }
+  choice = temp_choice;
+}

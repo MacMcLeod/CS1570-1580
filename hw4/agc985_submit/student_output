@@ -1,0 +1,11 @@
+Script started on Mon 20 Feb 2017 07:34:02 AM CST
+g++ -Wall -W -s -pedantic-errors *.cpp -o 53drv && ./53drv && rm ./53drv
+OPTIONS: 
+ 1. Exponential of X 
+ 2. Sine of X 
+ 3. Roots of X 
+ 4. Quit (and run away)
+5
+Invalid choice! Your options are: /n 1. Exponential of X /n 2. Sine of X /n 3. Roots of X /n 4. Quit (and run away)
+1 4
+Goodbye!

@@ -1,0 +1,119 @@
+// Programmer: Anna Case                         Date: 3/19/2017
+// File: definitions.cpp                         Class: CS1570
+//Instructor: Mardham
+// Student Id: 16181344                          Section: C
+// Description: function definitions
+
+#include "definitions.h"
+
+void initialize(pants p[])
+{
+  for (int i=0;i<INVENTORY;i++)
+  {
+	p[i].waist = rand()%((MAX_WAIST - MIN_WAIST) + 1) + MIN_WAIST; 
+	p[i].inseam = rand()%((MAX_INSEAM - MIN_INSEAM) + 1) + MIN_INSEAM; 
+	p[i].color = rand()%((NUM_COLORS) + 1); 
+	p[i].availability = true; //Inventory initially full
+  }
+  return;
+}
+
+void sortInventory(pants p[], pants_of_size s[])
+{
+  for (int g=0; g<(SIZES); g++)
+  {
+    for (int h=0;h<(NUM_COLORS);h++)
+    {
+      s[g].colors_in_size[h] = 0;
+    }
+  }
+  for (int k =0; k <(INVENTORY);k++)
+  {
+    s[p[k].waist - 20].waist =  p[k].waist; 
+    s[p[k].waist - 20].colors_in_size[p[k].color] += 1;
+
+  }
+  return;
+}
+
+void printInventory(pants p[])
+{
+  for (int i=1;i<=INVENTORY;i++)
+  {
+	cout << "Waist: " << p[i].waist << " Inseam: " << p[i].inseam << " Color: " << colors[p[i].color] << endl;
+  }
+  return;
+}
+
+void getWaist(int &pref_waist)
+{
+  cout << "What is your waist measurement?" << endl;
+  cin >> pref_waist; 
+  if ((pref_waist < 20) || (40 > pref_waist))
+  {
+    cout << "Shop somewhere else!" << endl;
+  }
+  return;
+}
+
+void printColor(pants_of_size s[])
+{
+  cout << "Here are the colors of pants with your waist: " << endl;
+  for (int i=1;i<NUM_COLORS;i++)
+  {
+	cout << "Colors: " << s[i].colors_in_size << endl;
+  }
+  return;
+}
+
+void whichColor (int &pref_color) {
+  cout << "Type the number corresponding to the color you would like. If you do not like your choices, enter -1." << endl;
+  cout << "0.black, 1.blue, 2.red, 3.rainbow, 4.checkered, 5.electric green, 6.polka dot" << endl;
+  cin >> pref_color;
+  return;
+}
+
+void printInseam(int pref_waist, int pref_color, pants p[])
+{
+  cout << "Here are the inseams of the pants with your waist and color: " << endl;
+  for (int i=1;i<=(SIZES);i++)
+  {
+	if ((p[i].waist == pref_waist)&&(p[i].color == pref_color))
+	{
+	  cout << "Inseam: " << p[i].inseam <<endl;
+	}
+  }
+  return;
+}
+
+void whatInseam(int pref_waist, int pref_color, pants p[], int &pref_inseam)
+{
+  cout << "What inseam would you like to buy?" << endl;
+  cin >> pref_inseam;
+  for (int i=1;i<=(SIZES);i++)
+  {
+	if ((p[i].waist == pref_waist)&&(p[i].color == pref_color)&&(p[i].inseam == pref_inseam))
+	{
+	  p[i].availability = false;
+	}
+  }
+  return;
+}
+
+void price (int pref_inseam, int pref_waist) {
+  int highwater = 0;
+  if (pref_inseam < (0.9 * pref_waist + 2))
+  {
+    highwater = 40;
+  }
+  cout << "The price is " << (pref_waist  +  pref_inseam + highwater) << endl;
+  //GET RID OF PANTS IN ARRAYS
+}
+
+bool moreCustomers ()
+{
+  bool cust;
+  cout << "Is there another customer? 1 for yes, 0 for no" << endl;
+  cin >> cust;
+  return cust;
+}

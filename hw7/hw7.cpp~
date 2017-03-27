@@ -1,0 +1,36 @@
+// Programmer: Anna Case                         Date: 3/19/2017
+// File: hw7.cpp                                Class: CS1570
+//Instructor: Mardham
+// Student Id: 16181344                          Section: C
+// Description: main function, calls functions
+
+#include "definitions.h"
+int main()
+{
+  srand(time(NULL)); //seeds RNG
+  //Declarations
+  pants p[INVENTORY];
+  pants_of_size s[SIZES];
+  int pref_waist;
+  int pref_color;
+  int pref_inseam;
+  bool more;
+  
+  initialize(p);
+  sortInventory(p,s,colors_in_size)
+  printInventory(p);
+  do
+  {
+    getWaist(pref_waist);
+	printColor(s);
+	whichColor(pref_color);
+	if (pref_color > 0)
+	{
+	  printInseam(pref_waist,pref_color,p);
+	  whatInseam(pref_waist, pref_color,p,pref_inseam);
+	  price(pref_inseam, pref_waist);
+	} 
+	more = moreCustomers();
+  } while (more = true);
+  return 0;
+}
