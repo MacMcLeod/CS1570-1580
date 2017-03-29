@@ -1,0 +1,30 @@
+// Programmer: Anna Case                         Date: 1/25/2017
+// File: lab02.cpp                           Class: CS1580
+// Instructor : Rushiraj
+// Student Id: 16181344                              Section: E
+// Description: Correcting errors in the .cpp file provided for the second lab.
+
+
+
+#include <iostream>
+using namespace std;
+int main() {
+//declarations
+const float gravitational = 6.674;
+float mass1;
+float mass2;
+float distance;
+float force;
+//get variables
+cout << "what is your mass in kg?" << endl;
+cin >> mass1;
+cout << "what is your friend's mass in kg?" << endl;
+cin >> mass2;
+cout << "what is the distance between you in meters?" << endl;
+cin >> distance;
+//calculate and output force
+force = mass1 * mass2 * gravitational / (distance * distance); 
+  cout << "The exact force is " << force << " newtons." << endl;
+  cout << "Which is about " << static_cast<int>(force) << " newtons." << endl;
+return 0;
+}

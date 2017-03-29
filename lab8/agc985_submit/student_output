@@ -1,0 +1,20 @@
+Script started on Wed 08 Mar 2017 08:59:09 PM CST
+g++ -Wall -W -s -pedantic-errors *.cpp -o 54drv && ./54drv && rm ./54drv
+Hello world!
+The initial array is 
+65
+2
+4
+98
+85
+27
+80
+The sorted array is 
+2
+4
+27
+65
+80
+85
+98
+Goodbye!
