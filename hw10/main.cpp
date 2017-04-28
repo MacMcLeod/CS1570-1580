@@ -1,43 +1,48 @@
-// Programmer: Anna Case                         Date: 3/19/2017
-// File: main.cpp                           Class: CS1570
-// Instructor: Mardham
-// Student Id: 16181344                          Section: C
-// Description: main file hw 10
+/*
+Programmers: Anna Case | Ben Politte
+Student Ids: 16181344  | 12533493
+Date: 5/3/2017
+Class: CS1570 C
+Instructor: Dileep Mardham
+Description: main file hw 10
+*/
 
-#include "tailor.h"
-#include "town.h"
-
+#include "heading.h"
 int main()
 {
   srand(time(NULL));
-  //Town declarations
-  int townsize = 17;
-  const int B = 10;
-  const int H = 40;
-  int x_loc, y_loc;
-  //Player declarations
-  string naming = "Milhouse";
-  char P = 'M';
+  TownClass town;
+  BullyClass rudedude[NUMBULLIES];
+  TailorClass player;
+  PhantomClass ghost[NUMPHANTOMS];
   
+  //objects
   town env;
-  bully rudedudes[B];
+  bully rudedudes[NUMBULLIES];
   tailor player;
-  ppants phantom;
-  
-  env.constructor(townsize,b,h); //Builds Town
-  for (b=0;b>B;b++)
+  phantom ghosts[NUMPHANTOMS];
+  //constructors
+  env.ProceduralGenerator(); //Builds town (walls, house)
+  player.tailor_con ();  //Builds a player
+  ghost.pants_con(env);
+  rudedudes[0].read_file(); //only needs to be performed once
+  for (b=0;b>NUMBULLIES;b++)
   {
-    rudedudes[b].constructor();
+    rudedudes[b].bully_con();
   }
-  player.constructor(naming, P); //Builds a player
-  phantom.constructor(env);
-  
+  //initial placement
   player.place_me(env); //Place tailor
-
-  while ()
+  //play loop
+  while (step < 1000 && player.health != 0 && player.pants != 0)
   {
     player.rand_walk(env);
-	print(townsize, x_loc, y_loc, env);
+	player.turn();
+	ghost.chase(player, env)
+    for (b=0;b>NUMBULLIES;b++)
+    {
+      rudedudes[b].patrol(env);
+    }
+	env.printTown();
   }
   return 0;
 }

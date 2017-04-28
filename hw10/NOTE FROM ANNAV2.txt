@@ -1,0 +1,38 @@
+By the way I've added a "point" struct the contains "short x,y".
+I'd like to integrate this struct into both my and your pre-existing code
+to make using our grid system easier to use. So far I've just been calling the
+point variables 'p', 'r', or 'q'. I've been calling the horizontal x and the
+vertical y. I'll call the function checkGrid(point p) and will integrate it
+right away. In the last part, I assume you're refering to the phantom pants,
+I'll look around at their code and see if I can incorporate the pants'
+constructor into the place function. 
+
+Sorry about being slow about looking back at changes -- just got done w/ calc2 test.
+1. Little confused about the move vs. place function. It doesn't look like move clears the 
+old location (but updates coord), but place wants a specific new point to move to.
+2. How about we start implementing a change log? Instead of you incorporating everything, 
+how about you take care of town and I'll take care of creatures. I can't ethically put my name
+on something that I didn't contribute enough to. Also, there's a few things that didn't go so
+well: function name didn't match in .h & .cpp, direction constants unneccesarily changed, etc.
+some of my functions are just gone, and some are only defined in the header. So I tried to fix all
+this. You've changed half the names, and only in half the places. Where are these  symbol = letter;
+ name = word; specified and why would it change if player attributes are at the top of the file?
+ So I changed them back. Anyways, I would just really appreciate to understand /that/ section so that
+ I can continue adding relatively smoothly. If there's a changelog on your side, it'll be fine. I'll put
+ one on mine.
+ 
+CHANGELOG:
+added a function for the tailor to look in a direction, made a turn function where he looks there and acts
+on it. Added to jumpfence function. call it in the punch function and fixed logic: if theres something behind
+the fence, and he can't jump it, the bully gets him. Will be working on the phantom class tomorrow and replacing the
+place_whatever functions where I hear back about #1. 
+
+
+
+Keep These Notes:
+brpz98
+4Starball
+All of the stuff is in SDRIVE/cs1570/hw10 with my original code in the cs1570/hw10alt file.
+Heading.h for globals and libs
+Also don't forget to remove and *.h.gch files that pop up, they override the
+.h files and prevent you from changing the code between compilation. 
