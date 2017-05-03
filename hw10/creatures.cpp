@@ -8,207 +8,413 @@ Description: moving creatures functions
 */
 #include "creatures.h"
 //============================================================================//
+//Pre: player called to see out
+//Post: player attributes given
+ostream& operator<<(ostream& stream, TailorClass player)
+{
+  stream <<player.name<<"'s Stats:"
+         <<" Health: "<<player.health
+         <<" Money: "<<player.money
+         <<" Inventory: "<<player.pants
+         <<" Location: "<<player.coord.x<<","<<player.coord.y;
+  return stream;
+}
+
 //Pre: Game started
 //Post: A pair of phantom pants are placed out of range
-void TailorClass::randWalk (TownClass & env)  
+void TailorClass::randWalk (TownClass& env)  
 {
   bool success=false;
   env.replaceSymbol(coord, EMPTY);
-  while(!success)
+   while(!success)
   {
-    switch(rand()%DIR);
+    int toDir = rand()%DIR;
+    switch(toDir)
     {
     case LEFT:
-      success=move(LEFT,DIST,coord,env);
+      success=walkingDir(toDir,env,coord);
       break;
     case RIGHT:
-      success=move(RIGHT,DIST,coord,env);
+      success=walkingDir(toDir,env,coord);
       break;
     case UP:
-      success=move(UP,DIST,coord,env);
+      success=walkingDir(toDir,env,coord);
       break;
     case DOWN:
-      success=move(DOWN,DIST,coord,env);
+      success=walkingDir(toDir,env,coord);
       break;
     }
+    if (!success)
+    {
+      success = true;
+      cout << "Player cannot move" << endl;
+    }
   }
-  env.replaceSymbol(coord,P); //places tailor
+  env.replaceSymbol(coord,P);  //places tailor
   return;
 }
 
-//Pre: Player has moved
-//Post: Acts accordingly
-bool TailorClass::turn ()
+//Pre: tailor needs to move (inital or punch)
+//Post: tailor placed in empty place
+void TailorClass::moved (TownClass & env)
 {
-  const int SALE = 10;
-  const int SOLD = 1;
-  for (int i=0;i<DIR;i++)
+  do
   {
-	char inDir = checkDir(i);
-	if (inDir == BULLY)
-	{
-	  rudedudes[rand%NUMBULLIES+1].punch(player);
-	}
-	else if (inDir==HOUSE && thrown==0)
-	{
-	  money += SALE;
-	  pants -= SOLD;
-	  //######thrown of house = 1
-	}
-  }
-  return;
+    newLoc.x = (rand()%TOWNSIZE);
+    newLoc.y = (rand()%TOWNSIZE);
+  } while (!place(P,coord,newLoc,env));
 }
 
 //Pre: a fence and a bully are next to the player
 //Post: Milhouse will (maybe) jump the fence if it is clear
-bool TailorClass::jumpFence (TownClass & env)
+bool TailorClass::jumpFence (TownClass& env)
 {
   const short JUMPCHANCE = 40;
   bool success = false;
-  if (fence && rand%100>=JUMPCHANCE)
+  env.replaceSymbol(coord,EMPTY);
+  for (int f=0;f<DIR;f++)
   {
-	success=move(TOFENCE,DIST+1,coord,env);
-	if (success) //else something on otherside of fence
-	  env.replaceSymbol(coord,P);
+    if (checkDir(f,env)==FENCE && rand()%100>=JUMPCHANCE)
+    {
+      success=move(f,DIST+1,coord,env);
+      if (success) //else is something on the otherside of the fence
+        env.replaceSymbol(coord,P);
+    }
   }
   return success;
 }
 
 //Pre: Player has moved
-//Post: Player returns character in a direction
-char TailorClass::checkDir(int dir)
+//Post: Acts accordingly. House becomes a home if sold
+void TailorClass::turn (TownClass& env)
 {
-  point around = coord;
-  switch(rand()%DIR);
+  const int SALE = 10;
+  const int SALECHANCE = 70;
+  const int SOLD = 1;
+  for (int i=0;i<DIR;i++)
+  {
+    char inDir = checkDir(i,env);
+    if (inDir==HOUSE)
+    {
+      object.x = coord.x;
+      object.y = coord.y;
+      switch(i)
+      {
+        case UP:
+          object.y++;
+        case DOWN:
+          object.y--;
+        case LEFT:
+          object.x--;
+        case RIGHT:
+          object.x++;
+      }
+      if (!env.grid[object.x][object.y].thrown&&rand()%100<=SALECHANCE&&pants>0)
+      {
+        money += SALE;
+        pants -= SOLD;
+        env.grid[object.x][object.y].thrown=true;
+        env.grid[object.x][object.y].letter=HOME;
+      }
+    }
+  }
+  env.grid[coord.x][coord.y].letter=P;
+  return;
+}
+
+//Pre: Player has moved
+//Post: Player returns character in a direction
+char TailorClass::checkDir(int dir, TownClass env)
+{
+  object.x = coord.x;
+  object.y = coord.y;
+  switch(dir)
     {
     case DOWN:
-      around.y -=DIST;
+      object.y--;
       break;
-	case RIGHT:
-      around.x +=DIST;
-	  break;
-	case UP:
-      around.y +=DIST;
+  case RIGHT:
+      object.x++;
+    break;
+  case UP:
+      object.y++;
       break;
     case LEFT:
-      around.x -=DIST;
+      object.x--;
       break;
     }
-  return env.checkgrid(around);
+  return env.checkGrid(object);
+}
+
+//Pre: another turn in game
+//Post: returns alive status
+bool TailorClass::isAlive()
+{
+  if (alive)
+    return true;
+  else
+    return false;
+}
+
+//Pre: another turn in game
+//Post: returns inventory status
+bool TailorClass::hasInventory()
+{
+  if (pants>0)
+    return true;
+  else
+    return false;
 }
 //============================================================================//
-/*//Pre: Game started
-//Post: A pair of phantom pants are placed out of range
-void PhantomClass::pants_con(TownClass & env)
-{
-  env.
-  return;
-}*/
-
 //Pre: A pair of pants have been dropped
 //Post: A phantom seeks Milhouse
-void PhantomClass::place_pants(TownClass & env)
+void PhantomClass::place_pants(TownClass & env, TailorClass & player)
 {
-  while (grid != EMPTY)
-  {
-	coord.x = rand() % (TOWNSIZE + 1);
-    coord.y = % (TOWNSIZE + 1);
-  }
-  //####place(PANTS, point & coord, point newLocation, TownClass & env)
+  coord.x = player.coord.x;
+  coord.y = player.coord.y;
+  env.replaceSymbol(coord,PANTS);
+  player.moved(env);
+  existing = true;
+  player.pants--;
   return;
 }
 
-//Pre: The tailor has moved
-//Post: There is a 25% chance the phantom(s) have moved
-void PhantomClass::chase(TailorClass player, TownClass& env)
+//Pre: used for moving phantoms
+//Post: returns if the phantom pants have been created
+bool PhantomClass::exists()
 {
-  if (((coord.x+DIST)||(coord.x-DIST)==player.coord.x))&&((coord.y-DIST)||(coord.y-DIST)==player.coord.y)))
-    kill(player);
+  if (existing)
+    return true;
   else
+    return false;
+}
+////////////////////////////////////////////////////////////////////////////////
+void PhantomClass::chase(TailorClass& player, TownClass& env)
+{
+  bool killedThisRound=false;
+  //Kills if player walks next to pants
+  if((coord.x+DIST==player.coord.x && coord.y == player.coord.y)||
+     (coord.x-DIST==player.coord.x && coord.y == player.coord.y)||
+     (coord.y+DIST==player.coord.y && coord.x == player.coord.x)||
+     (coord.y-DIST==player.coord.y && coord.x == player.coord.x))
   {
-	place (&coord.x, &coord.y)
-	if (rand%100<=CHASE)
-      //#######placePhantom(at_x, at_y);
+    kill(player);
+    killedThisRound=true;
   }
+  //Pants attempt to move toward the player
+  else if (rand()%100<=PROBCHASE)
+  {
+    bool success = 0;
+    int deltaX;
+    int deltaY;
+    env.replaceSymbol(coord, EMPTY);
+    deltaX=coord.x-player.coord.x;//The x direction dist to the player
+    deltaY=coord.y-player.coord.y;//The y direction dist to the player
+    int toDir;//some direction
+      
+    //Pants attempt to move closer to the player along the longer distance
+    if(abs(deltaX)>=abs(deltaY))
+    {
+      toDir=RIGHT;
+      if(deltaX>0)
+        toDir=LEFT;
+    }
+    else
+    {
+      toDir=DOWN;
+      if(deltaY>0)
+        toDir=UP;
+    }
+    switch(toDir)
+    {
+     case LEFT:
+      success=move(toDir,DIST,coord,env);
+      break;
+     case RIGHT:
+      success=move(toDir,DIST,coord,env);
+      break;
+     case UP:
+      success=move(toDir,DIST,coord,env);
+      break;
+     case DOWN:
+      success=move(toDir,DIST,coord,env);
+      break;
+    }    
+    //If the pants didn't move before, pants attempt to move now along
+    //the shorter distance
+    if (!success)
+    {
+      if(abs(deltaX)<=abs(deltaY))
+      {
+        toDir=RIGHT;
+        if(deltaX>0)
+          toDir=LEFT;
+      }
+      else
+      {
+        toDir=DOWN;
+        if(deltaY>0)
+         toDir=UP;
+      }
+      switch(toDir)
+      {
+       case LEFT:
+        success=move(toDir,DIST,coord,env);
+        break;
+       case RIGHT:
+        success=move(toDir,DIST,coord,env);
+        break;
+       case UP:
+        success=move(toDir,DIST,coord,env);
+        break;
+       case DOWN:
+        success=move(toDir,DIST,coord,env);
+        break;
+      }
+    }
+  }
+  env.replaceSymbol(coord,PANTS);
+  if(((coord.x+DIST==player.coord.x && coord.y == player.coord.y)||
+      (coord.x-DIST==player.coord.x && coord.y == player.coord.y)||
+      (coord.y+DIST==player.coord.y && coord.x == player.coord.x)||
+      (coord.y-DIST==player.coord.y && coord.x == player.coord.x))&&
+      (!killedThisRound))
+    kill(player);
   return;
 }
 
 //Pre: Tailor has been killed by phantom pants
 //Post: Tailor's attributes are set to dead 
-void PhantomClass::kill(TailorClass& player)
+void PhantomClass::kill(TailorClass & player)
 {
-  player.alive = 0;
-  player.health = 0;
+  player.alive = false;
+  player.health=0;
+  cout<<"Phantom Pants killed "<<player.name<<"!\n";
   return;
 }
 
 //===========================================================================//
-
-//Pre: files are created, bullies are not initialized
-//Post: a list of names and insults are made
-void BullyClass::read_file()
+//Constructor
+BullyClass::BullyClass()
 {
-  //Names
+  //Gets from file
+  srand(time(NULL));
   ifstream in;
-  in ("bullies.dat");
-  in.open();
-  while( std::getline(in, names))
+  in.open("bullies.dat");
+  while(getline(in, names))
     names_in_file.push_back(names);
   namelist = names_in_file.size();
   in.close();
-  //Messages
-  ifstream in;
-  in ("message.dat");
-  in.open();
-  while(std::getline(in, insults))
+  in.clear();
+  in.open("message.dat");
+  while(getline(in, insults))
     insults_in_file.push_back(insults);
   insultlist = insults_in_file.size();
   in.close();
-  return;
+  //attributes
+  coord.x = -1;
+  coord.y = -1;
+  punch_power = rand()%(MAXP-MINP) + MINP;
+  Bname = names_in_file[rand()%namelist];
 }
 
 //Pre: a number of bullies have been declared
 //Post: their values are initialized
-BullyClass::BullyClass()
+void BullyClass::placement(TownClass& env)
 {
-  Bname = names_in_file[rand & namelist];
-  punch_power = rand() % MAXP + MINP;
-  in.close();
+  do
+  {
+    newLoc.x = rand()%TOWNSIZE;
+    newLoc.y = rand()%TOWNSIZE;
+  } while (!place(BULLY,coord,newLoc,env));
+  return;
 }
 
 //Pre: the tailor has encountered a bully
 //Post: he is punched or insulted
-void BullyClass::punch(TailorClass & player)
+void BullyClass::punch(TailorClass& player, TownClass& env, PhantomClass ghosts[])
 {
-  bool away = 0;
-  if (rand()%100 <= 40)
+  static short punchesThrown = 0;
+  bool away = false;
+  if (rand()%100<=40)
   {
     away = player.jumpFence(env);
   }
-  if (away=0)
+  if(away)
+  cout<<player.name<<" escaped the bully!\n";
+  if (away==false && rand()%100 <= PROB)
   {
-    if (rand() % 100 <= prob_punch)
+    player.money *= (1-punch_power/100.0);
+    player.health -= INCR;
+    if (player.health==0)
     {
-	  money = money/(punch_power/100);
-	  player.health -= INCR;
-	  //####RANDOMLY KICK PLAYER
-	  player.place_me();
-	  ghost.place_pants(env);
+      player.alive = false;
+      cout<<"A bully killed "<<player.name<<"!!\n";
     }
     else
     {
-	  std::string insult = insults_in_file[rand & insultlist];
-	  cout << insult << endl;
+      cout<<"A bully punched "<<player.name<<"!\n";
     }
+    if(punchesThrown<NUMPHANTOMS)
+      ghosts[punchesThrown].place_pants(env,player);
+    punchesThrown++;
+  }
+  else
+  {
+    string insult = insults_in_file[rand()%insultlist];
+    cout << insult << endl;
   }
   return;
 }
 
 //Pre: another 'turn' has begun
-//Post: the bully walks within his territory
-void BullyClass::patrol(TownClass & env)
+//Post: the bully walks within his territory, may catch player
+void BullyClass::patrol (TailorClass& player, TownClass& env, int& punchCount, PhantomClass ghosts[])
 {
-  //#######env.placeBully(x,y);
+  if (((coord.x+DIST==player.coord.x && coord.y == player.coord.y)||
+      (coord.x-DIST==player.coord.x && coord.y == player.coord.y)||
+      (coord.y+DIST==player.coord.y && coord.x == player.coord.x)||
+      (coord.y-DIST==player.coord.y && coord.x == player.coord.x))&&
+      (punchCount==0))
+  {
+    punch(player,env,ghosts);
+    punchCount++;
+  }
+  bool success=false;
+  env.replaceSymbol(coord, EMPTY);
+  while(!success)
+  {
+    int toDir = rand()%DIR;
+    switch(toDir)
+    {
+    case LEFT:
+      success=walkingDir(toDir,env,coord);
+      break;
+    case RIGHT:
+      success=walkingDir(toDir,env,coord);
+      break;
+    case UP:
+      success=walkingDir(toDir,env,coord);
+      break;
+    case DOWN:
+      success=walkingDir(toDir,env,coord);
+      break;
+    }
+    if (!success)
+    {
+      success = true;
+    }
+  }
+  env.replaceSymbol(coord,BULLY);
+  if(((coord.x+DIST==player.coord.x && coord.y == player.coord.y)||
+      (coord.x-DIST==player.coord.x && coord.y == player.coord.y)||
+      (coord.y+DIST==player.coord.y && coord.x == player.coord.x)||
+      (coord.y-DIST==player.coord.y && coord.x == player.coord.x))&&
+      (punchCount==0))
+  {
+    punch(player,env,ghosts);
+    punchCount++;
+  }
   return;
 }
 //===========================================================================//

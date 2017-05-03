@@ -10,15 +10,18 @@
 class TownClass
 {
   public:
+    friend class TailorClass;
     bool replaceSymbol(point p, char letter);
     char checkGrid(point p);
-    //////////////////////////////
     void proceduralGenerator();
     void printTown();
+    friend ostream& operator<<(ostream& out, TownClass & town);
     void graphicalPrintTown();
     void GenerateWalls();
     void GenerateFence();
   private:
+    bool checkFenceAdj(short dir, const point p);
+    bool moveTarget(short dir, point & p);
     location grid[MAX][MAX];
     bool GenerateHouse(point p);
 };

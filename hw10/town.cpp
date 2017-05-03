@@ -11,14 +11,16 @@ Purpose: Functions for creating and refreshing the town objects
 #include "creatures.h"
 #include "functions.h"
 //============================================================================//
+//Pre: town created
+//Post: houses & fences generated
 void TownClass::proceduralGenerator()
 {
   point p;
-  int j=0;
   int tries = 0;
   string word;
   bool success;
   GenerateWalls();
+//  GenerateFence();
   for(int i=0; i<NUMHOUSES;i=i)//Places number of houses equal to NUMHOUSES
   {
     tries++;
@@ -133,6 +135,8 @@ void TownClass::proceduralGenerator()
   return;
 }
 //============================================================================//
+//Pre: Walls placed
+//Post: Houses generated
 bool TownClass::GenerateHouse(point p)
 {
   if((grid[p.x][p.y].letter==' ')&&
@@ -153,6 +157,8 @@ bool TownClass::GenerateHouse(point p)
     return false;
 }
 //============================================================================//
+//Pre: town grid created
+//Post: walls placed
 void TownClass::GenerateWalls()
 {
   for(int j=0; j<TOWNSIZE-1; j++)
@@ -168,6 +174,20 @@ void TownClass::GenerateWalls()
   return;
 }
 //============================================================================//
+//Pre: turn complete
+//Post: outputs changes on screen
+ostream& operator<<(ostream& out, TownClass & town)
+{
+  for(int j=0; j<TOWNSIZE; j++)
+  {
+        for(int k=0; k<TOWNSIZE; k++)
+        {
+          out<<town.grid[k][j].letter<<EMPTY;
+        }
+        out<<endl;
+  }
+  return out;
+}
 void TownClass::printTown()
 {
   for(int j=0; j<TOWNSIZE; j++)
@@ -191,7 +211,7 @@ void TownClass::printTown()
   {
         for(int p.k=0; p.x<TOWNSIZE; p.x++)
         {
-          convertToTile(graph[k][j],p);
+          convertToTile(graph[k][j],grid[p.x][p.y].letter);
         }
         cout<<endl;
   }
@@ -213,109 +233,193 @@ void TownClass::printTown()
   return;
 }*/
 //============================================================================//
+//Pre: need a char value on grid
+//Post: value is returned
 char TownClass::checkGrid(point p)
 {
   return grid[p.x][p.y].letter; 
 }
 //============================================================================//
+//Pre: need to update grid
+//Post: one char is changed
 bool TownClass::replaceSymbol(point p, char symbol)
 {
   grid[p.x][p.y].letter=symbol;
   return true;
 }
 //============================================================================//
+//Pre: Houses have been placed
+//Post: Fence generates
 void TownClass::GenerateFence()
 {
-  short dir1=0;
-  short dir2=2;
+  const short TURNREQ=-2;
+  short canTurn1 = 1;
+  short canTurn2 = 1;
+  int tries = 0;
+  short dir1,dir2;
+  point p1,p2;
   bool end1=true;
-  bool place=false;
-  int tries=0;
-  point p1;
-  //Starts the fence
+  bool end2=false;
   while(end1)
   {
     tries++;
-    srand(tries+time(NULL));
-    p1.x=rand()%(TOWNSIZE-2)+1;
-    p1.y=rand()%(TOWNSIZE-2)+1;
+    srand(time(NULL)+tries);
+    p1.x=rand()%(TOWNSIZE-4)+2;
+    p1.y=rand()%(TOWNSIZE-4)+2;
     end1=(grid[p1.x][p1.y].letter!=EMPTY);
   }
-  //Continues the fence
+  grid[p1.x][p1.y].letter=FENCE;
+  p2.x=p1.x;
+  p2.y=p1.y;
   dir1=rand()%4;
   dir2=(dir1+2)%4;
-  while(!end1)
+  end1=checkFenceAdj(dir1, p1);
+  end2=checkFenceAdj(dir2, p2);
+  while(end1==false||end2==false)
   {
     tries++;
-    cin.get();
-    printTown();
     srand(time(NULL)+tries);
-    place=false;
-    switch(dir1)
+    if(!moveTarget(dir1,p1)&&!end1)
     {
-      case UP:
-        if(grid[p1.x][p1.y-1].letter==WALL
-        ||grid[p1.x][p1.y-1].letter==STRAIGHTFENCE
-        ||grid[p1.x][p1.y-1].letter==CORNERFENCE)
-          end1=true;
-        else if(grid[p1.x][p1.y-1].letter==EMPTY)
-        {
-          p1.y--;
-          place=true;  
-        }
-        else
-        {
-          dir1=((2*rand()%2)+1+dir1)%4;
-        }
-        break;
-      case DOWN:
-        if(grid[p1.x][p1.y+1].letter==WALL||grid[p1.x][p1.y+1].letter==STRAIGHTFENCE)
-          end1=true;
-        else if(grid[p1.x][p1.y+1].letter==EMPTY)
-        {
-          p1.y++;
-          place=true;
-        }
-        else
-        {
-          dir1=((2*rand()%2)+1+dir1)%4;
-        }
-        break;
-      case RIGHT:
-        if(grid[p1.x+1][p1.y].letter==WALL||grid[p1.x+1][p1.y].letter==STRAIGHTFENCE)
-          end1=true;
-        else if(grid[p1.x+1][p1.y].letter==EMPTY)
-        {
-          p1.x++;
-          place=true;
-        }
-        else
-        {
-          dir1=((2*rand()%2)+1+dir1)%4;
-        }
-        break;
-      case LEFT:
-        if(grid[p1.x-1][p1.y].letter==WALL||grid[p1.x-1][p1.y].letter==STRAIGHTFENCE)
-          end1=true;
-        else if(grid[p1.x-1][p1.y].letter==EMPTY)
-        {
-          p1.x--;
-          place=true;
-        }
-        else
-        {
-          dir1=((2*rand()%2)+1+dir1)%4;
-        }
-      break;
+      dir1=(2*(rand()%2)+1+dir1)%4;
+      if(canTurn1<1)
+        end1=true;
+      else if(!moveTarget(dir1,p1))
+      {
+        dir1=(dir1+2)%4;
+        moveTarget(dir1,p1);
+      }
+      canTurn1=TURNREQ;
     }
-    if(place&&(rand()%100>=GATEPROB))
-      grid[p1.x][p1.y].letter=STRAIGHTFENCE;
-    if((rand()%100)<=TURNPROB)
+    if(!moveTarget(dir2,p2)&&!end2)
     {
-      dir1=((2*rand()%2)+1+dir1)%4;
-      grid[p1.x][p1.y].letter=CORNERFENCE;
+      dir2=(2*(rand()%2)+1+dir2)%4;
+      if(canTurn2<1)
+        end2=true;
+      else if(!moveTarget(dir2,p2))
+      {
+        dir2=(dir2+2)%4;
+        moveTarget(dir2,p2);
+      }
+      canTurn2=TURNREQ;
     }
+    if(!end1)
+    {
+      if(canTurn1>TURNREQ&&rand()%100<PROBGATE)
+        grid[p1.x][p1.y].letter=GATE;
+      else
+        grid[p1.x][p1.y].letter=FENCE;
+      end1=checkFenceAdj(dir1, p1);
+      canTurn1++;
+    }
+    if(!end2)
+    {
+      if(rand()%100<PROBGATE)
+        grid[p2.x][p2.y].letter=GATE;
+      else
+        grid[p2.x][p2.y].letter=FENCE;
+      end2=checkFenceAdj(dir2, p2);
+      canTurn2++;
+    }
+    if(rand()%100<PROBTURN&&canTurn1>0)
+    {
+      dir1=(2*(rand()%2)+1+dir1)%4;
+      grid[p1.x][p1.y].letter=CORNER;
+      canTurn1=TURNREQ;
+    }
+
+    if(rand()%100<PROBTURN&&canTurn2>0)
+    {
+      dir2=(2*(rand()%2)+1+dir2)%4;
+      grid[p2.x][p2.y].letter=CORNER;
+      canTurn2=TURNREQ;
+    }   
   }
+  grid[p1.x][p1.y].letter=FENCE;
+  grid[p2.x][p2.y].letter=FENCE;
   return;
 }
 //============================================================================//
+//Pre: Fence being placed
+//Post: Checks nearby for fence
+bool TownClass::checkFenceAdj(short dir,const point p)
+{
+  switch(dir)
+  {
+    case LEFT:
+    if((grid[p.x-1][p.y].letter==WALL||grid[p.x-1][p.y].letter==FENCE
+    ||grid[p.x][p.y+1].letter==WALL||grid[p.x][p.y+1].letter==FENCE
+    ||grid[p.x][p.y-1].letter==WALL||grid[p.x][p.y-1].letter==FENCE)
+    ||(grid[p.x-1][p.y].letter!=EMPTY&&grid[p.x][p.y+1].letter!=EMPTY
+       &&grid[p.x][p.y-1].letter!=EMPTY))
+      return true;
+    else
+      return false;
+    break;
+    case RIGHT:
+    if((grid[p.x+1][p.y].letter==WALL||grid[p.x+1][p.y].letter==FENCE
+    ||grid[p.x][p.y+1].letter==WALL||grid[p.x][p.y+1].letter==FENCE
+    ||grid[p.x][p.y-1].letter==WALL||grid[p.x][p.y-1].letter==FENCE)
+    ||(grid[p.x+1][p.y].letter!=EMPTY&&grid[p.x][p.y+1].letter!=EMPTY
+       &&grid[p.x][p.y-1].letter!=EMPTY))
+      return true;
+    else
+      return false;
+    break;
+    case UP:
+    if((grid[p.x-1][p.y].letter==WALL||grid[p.x-1][p.y].letter==FENCE
+    ||grid[p.x+1][p.y].letter==WALL||grid[p.x+1][p.y].letter==FENCE
+    ||grid[p.x][p.y-1].letter==WALL||grid[p.x][p.y-1].letter==FENCE)
+    ||(grid[p.x-1][p.y].letter!=EMPTY&&grid[p.x+1][p.y].letter!=EMPTY
+       &&grid[p.x][p.y-1].letter!=EMPTY))
+      return true;
+    else
+      return false;
+    break;
+    case DOWN:
+    if((grid[p.x-1][p.y].letter==WALL||grid[p.x-1][p.y].letter==FENCE
+    ||grid[p.x+1][p.y].letter==WALL||grid[p.x+1][p.y].letter==FENCE
+    ||grid[p.x][p.y+1].letter==WALL||grid[p.x][p.y+1].letter==FENCE)
+    ||(grid[p.x-1][p.y].letter!=EMPTY&&grid[p.x+1][p.y].letter!=EMPTY
+       &&grid[p.x][p.y+1].letter!=EMPTY))
+      return true;
+    else
+      return false;
+    break;
+  }
+  return false;
+}
+//
+//Pre: Town being generated
+//Post: Used in town generation
+bool TownClass::moveTarget(short dir, point & p)
+{
+  switch(dir)
+  {
+    case UP:
+    if(grid[p.x][p.y-1].letter==EMPTY)
+      p.y--;
+    else
+      return false;
+    break;
+    case DOWN:
+    if(grid[p.x][p.y+1].letter==EMPTY)
+      p.y++;
+    else
+      return false;
+    break;
+    case RIGHT:
+    if(grid[p.x+1][p.y].letter==EMPTY)
+      p.x++;
+    else
+      return false;
+    break;
+    case LEFT:
+    if(grid[p.x-1][p.y].letter==EMPTY)
+      p.x--;
+    else
+      return false;
+    break;
+  }
+  return true;
+}

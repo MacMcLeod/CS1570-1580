@@ -6,87 +6,103 @@ Class: CS1570 C
 Instructor: Dileep Mardham
 Description: moving creatures definitions header
 */
-
 #pragma once
 #include "heading.h"
 #include "town.h"
-const int DIR = 4;
-const short DIST = 1;
+#include "functions.h"
 //Tailor
 const int STARTPANTS = 30;
-const int STARTHEALTH = 100;
 const int MAXM = 40;
 const int MINM = 20;
 const int HP = 100;
 //Pants
 const int START = -1;
-const int CHASE = 25;
+const int PROBCHASE = 25;
 //Bullies
 const int INCR = 10;
 const int MAXP = 50;
 const int MINP = 30;
 const short PROB = 80;
-//Player attributes
-int step = 0;
-string naming = "Milhouse";
-char P = 'M';
 
 class TailorClass
 {
   private:
     string name; 
-    char symbol;
+    char P;
     int money;
     bool alive;
     short health;
     short pants;
-	int dir;
+    int dir;
     point coord;
+    point newLoc;
+    point object; //house and checkdir object
   public:
-    friend class TownClass;
-    TailorClass(char letter)
+    string getName()
     {
-      symbol = letter;
-      name = naming;
-      alive = true;
-      health = HP;
-      pants = STARTPANTS;
-      money = rand()%MAXM+MINM;
+      return name;
     }
-	void randWalk(TownClass& env);
-    char checkDir(int dir);
-	void turn();
+    friend class TownClass;
+    friend class PhantomClass;
+    friend class BullyClass;
+    TailorClass()
+    {
+      health = HP;
+      alive = true;
+      money = rand()%MAXM+MINM;
+      pants = STARTPANTS;
+      coord.x = -1;
+      coord.y = -1;
+      P = 'M';
+      name = "Milhouse";
+    }
+    friend ostream& operator<<(ostream& stream, TailorClass player);
+    void randWalk(TownClass& env);
+    void moved(TownClass& env);
     bool jumpFence(TownClass& env);
+    char checkDir(int dir, TownClass env);
+    void turn(TownClass& env);
+    bool isAlive();
+    bool hasInventory();
 };
 //============================================================================//
-class PhantomClass
+class PhantomClass ///constructed in town
 {
   private:
     point coord;
+    point newLoc;
+    bool existing;
   public: 
-    void phantom_con(TownClass& env);
-    void place_pants(TownClass& env);
-    void chase(TailorClass player, TownClass& env);
+    PhantomClass()
+    {
+      coord.x = -1;
+      coord.y = -1;
+      existing = false;
+    }
+    bool exists();
+    void place_pants(TownClass& env, TailorClass& player);
+    void chase(TailorClass& player, TownClass& env);
     void kill(TailorClass& player);
 };
 //============================================================================//
 class BullyClass
 {
   private:
-    std::string Bname;
-	short punch_power;
-	short prob_punch;
-///	std::vector<std::string> names_in_file;
-    std::string names;
-	int namelist;
-//	std::vector<std::string> insults_in_file;
-    std::string insults;
-	int insultlist;
-	point coord;
+    string Bname;
+    short punch_power;
+    short prob_punch;
+    vector<string> names_in_file;
+    string names;
+    int namelist;
+    vector<string> insults_in_file;
+    string insults;
+    int insultlist;
+    point coord;
+    point newLoc;
   public:
-    void read_files();
-    void bully_con();
-	void punch(TailorClass & player);
-	void patrol(TownClass & env);
+    BullyClass();
+    void placement(TownClass& env);
+    void punch(TailorClass& player, TownClass& env, PhantomClass ghosts[]);
+    void patrol(TailorClass& player, TownClass& env, int& punchCount, PhantomClass ghosts[]);
 };
 //============================================================================//

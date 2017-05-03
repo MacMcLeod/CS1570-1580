@@ -2,6 +2,8 @@
 #include "functions.h"
 //#include "creatures.h"
 //============================================================================//
+//Pre: something needs to move
+//Post: a point is moved in a direction (char is not updated)
 bool move (short dir, short dist, point & location, TownClass & env)
 {
   switch(dir)
@@ -39,8 +41,11 @@ bool move (short dir, short dist, point & location, TownClass & env)
         return false;
       break;
   }
+  return false;
 }
 //============================================================================//
+//Pre: someone needs to move
+//Post: moves a point & char to a new location
 bool place(char symbol,point & coord,point newLocation,TownClass & env)
 {
   if(EMPTY==env.checkGrid(newLocation))
@@ -54,10 +59,26 @@ bool place(char symbol,point & coord,point newLocation,TownClass & env)
     return false;
 }
 //============================================================================//
+//Pre: need to wait
+//Post: waited
 void wait(int seconds)
 {
   int x = 0;
   x=time(NULL);
   while(time(NULL)<seconds+x){}
   return;
+}
+//============================================================================//
+//Pre: Creature tries to walk in all directions (rand first)
+//Post: Creature has been successful unless blocked
+bool walkingDir (int dir, TownClass& env, point& location)
+{
+  bool success=false;
+  for (int a=0;a<DIR;a++)
+  {
+  
+    if (!success)
+      success=move((dir+a)%DIR,DIST,location,env);
+  }
+  return success;
 }

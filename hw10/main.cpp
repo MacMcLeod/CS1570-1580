@@ -8,41 +8,65 @@ Description: main file hw 10
 */
 
 #include "heading.h"
+#include "town.h"
+#include "creatures.h"
+
 int main()
 {
   srand(time(NULL));
-  TownClass town;
-  BullyClass rudedude[NUMBULLIES];
+  TownClass env;
+  BullyClass bullies[BARR];
+  BullyClass rudedudes[NUMBULLIES];
   TailorClass player;
-  PhantomClass ghost[NUMPHANTOMS];
-  
-  //objects
-  town env;
-  bully rudedudes[NUMBULLIES];
-  tailor player;
-  phantom ghosts[NUMPHANTOMS];
+  PhantomClass ghosts[NUMPHANTOMS];
+  int step = 0;
+  bool last = false;
   //constructors
-  env.ProceduralGenerator(); //Builds town (walls, house)
-  player.tailor_con ();  //Builds a player
-  ghost.pants_con(env);
-  rudedudes[0].read_file(); //only needs to be performed once
-  for (b=0;b>NUMBULLIES;b++)
+  env.proceduralGenerator(); //Builds town (walls, house)
+  for (int b=0;b<NUMBULLIES;b++)
   {
-    rudedudes[b].bully_con();
+    rudedudes[b]=bullies[rand()%BARR];
+    rudedudes[b].placement(env);
   }
-  //initial placement
-  player.place_me(env); //Place tailor
-  //play loop
-  while (step < 1000 && player.health != 0 && player.pants != 0)
+  //Place tailor
+  player.moved(env); //places tailor
+  while (!last) //loop 
   {
-    player.rand_walk(env);
-	player.turn();
-	ghost.chase(player, env)
-    for (b=0;b>NUMBULLIES;b++)
+    player.randWalk(env);
+    player.turn(env);
+    step++; //increments step/turn
+    int punchCount=0;
+    for (int q=0;q<NUMBULLIES;q++) //moves bullies
     {
-      rudedudes[b].patrol(env);
+      rudedudes[q].patrol(player,env,punchCount,ghosts);
     }
-	env.printTown();
+    for (int h=0;h<NUMPHANTOMS;h++) //moves phantoms
+    {
+      if (ghosts[h].exists())
+      {
+        ghosts[h].chase(player, env);
+      }
+    }
+    if (!player.isAlive())
+      last = true;
+    else if (!player.hasInventory()) //determines if last term
+    {
+      last = true;
+      cout<<player.getName()<<" has run out of pants!"<<endl;
+    } 
+    else
+    {
+      if (step==1000)
+      {
+        last = true;
+        cout <<player.getName()<<"'s feet are tired!" << endl;
+      }
+    }
+    if (step<=35|| last) //print town conditions
+    {
+      cout<<env;
+      cout << "Turn " << step << " : " << player << endl;
+    }
   }
   return 0;
 }
